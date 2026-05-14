@@ -1,14 +1,17 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useStore } from '@/store'
+import { NumericInput } from '@/ui/NumericInput'
 
 export default function PersonEdit() {
   const { id } = useParams<{ id: string }>()
   const person = useStore((state) => state.people.find((p) => p.id === Number(id)))
   const updatePersonAge = useStore((state) => state.updatePersonAge)
+  const [focused, setFocused] = useState(false)
 
   if (!person) {
     return (
-      <div>
+      <div className="flex flex-col gap-3">
         <p className="text-gray-600">Person not found</p>
         <Link to="/" className="text-violet-600 hover:underline text-sm">
           Back to list
@@ -27,20 +30,26 @@ export default function PersonEdit() {
         <img
           src="/img.png"
           alt={person.name}
-          className="w-14 h-14 rounded-full border-2 border-violet-500 object-cover"
+          className={`w-14 h-14 rounded-full object-cover ring-2 transition-colors ${
+            focused ? 'ring-violet-500' : 'ring-gray-200'
+          }`}
         />
         <div>
-          <label htmlFor="hours-input" className="block text-sm font-bold tracking-wide text-gray-700">
-            {person.name.toUpperCase()} IS
+          <label
+            htmlFor="hours-input"
+            className={`block text-xs font-bold tracking-widest uppercase transition-colors ${
+              focused ? 'text-violet-600' : 'text-gray-500'
+            }`}
+          >
+            {person.name} is
           </label>
-          <div className="flex items-center gap-2">
-            <input
+          <div className="flex items-center gap-2 mt-0.5">
+            <NumericInput
               id="hours-input"
-              type="text"
               value={person.ageInHours}
-              onChange={(e) => updatePersonAge(person.id, Number(e.target.value) || 0)}
-              className="border border-gray-300 rounded px-2 py-1 text-lg outline-none"
-              placeholder="0"
+              onChange={(v) => updatePersonAge(person.id, v)}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
             />
             <span className="text-gray-600">hours old</span>
           </div>
